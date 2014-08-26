@@ -25,7 +25,7 @@ from PyQt4 import QtGui
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
-from image_compositor_dialog import CompositorDialog
+from compositor_dialog import CompositorDialog
 import os
 
 
@@ -67,7 +67,7 @@ class ImageComposite:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/image_compositor/icon.png'
+        icon_path = ':/plugins/image_compositor/resources/icon.png'
 
         self.show_dialog = QtGui.QAction(
             QtGui.QIcon(icon_path),
@@ -83,7 +83,7 @@ class ImageComposite:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         # Remove toolbar
-        self.iface.removeToolBarIcon(action)
+        self.iface.removeToolBarIcon(self.show_dialog)
 
         # Disconnect signals
         self.show_dialog.triggered.disconnect()

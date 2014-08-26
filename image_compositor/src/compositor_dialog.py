@@ -56,6 +56,8 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
                     self.edit_imagename,
                     gdal_file_validator))
 
+    def unload(self):
+        """ Unloads resources """
 
 # main for testing
 if __name__ == '__main__':

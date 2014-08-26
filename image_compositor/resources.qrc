@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/plugins/image_compositor" >
-        <file>icon.png</file>
+        <file>resources/icon.png</file>
     </qresource>
 </RCC>
