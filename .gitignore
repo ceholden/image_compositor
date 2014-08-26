@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 
+resources_rc.py
+
 .ipynb_checkpoints
 
 # C extensions
