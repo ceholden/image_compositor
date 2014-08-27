@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 
 resources_rc.py
+ui/*.py
 
 .ipynb_checkpoints
 
