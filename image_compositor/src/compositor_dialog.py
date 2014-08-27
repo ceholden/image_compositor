@@ -50,11 +50,31 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
     def setup_gui(self):
         """ Binds signals to slots and initializes GUI elements """
+        # "Add Images" or "Import Directory"
+        self.groupbox_importer.setAlignment(QtCore.Qt.AlignHCenter)
+        self.rbut_image.setChecked(True)
+        self.rbut_dir.setChecked(False)
+        self.stackwidget_importer.setCurrentIndex(
+            0 if self.rbut_image.isChecked() else 1)
+
+        self.rbut_image.toggled.connect(self.importer_changed)
+        self.rbut_dir.toggled.connect(self.importer_changed)
+
         # Image import - image by image
         self.but_imagebrowse.clicked.connect(
             partial(find_file,
                     self.edit_imagename,
                     gdal_file_validator))
+
+        # Image import - images matching pattern within directory
+
+
+# Slots
+    @QtCore.pyqtSlot(bool)
+    def importer_changed(self, bool):
+        """ Change the index of stack widget based on radio button status """
+        self.stackwidget_importer.setCurrentIndex(
+            0 if self.rbut_image.isChecked() else 1)
 
     def unload(self):
         """ Unloads resources """
