@@ -6,6 +6,7 @@ Utilities for Qt widgets
 """
 from __future__ import division, print_function
 
+from datetime import datetime as dt
 import fnmatch
 import logging
 import os
@@ -35,6 +36,36 @@ def locate_files(location, pattern):
             files.append(os.path.join(root, filename))
 
     return files
+
+def parse_date_from_filename(filename):
+    """ Tries to extract date from a filename for common image filenames
+
+    Should work for:
+        - Landsat
+
+    Args:
+      filename (str): filename to extract from
+
+    Returns:
+      date_str (datetime): datetime object for file if parsed, else None
+
+    """
+    filename = os.path.basename(filename)
+    date = None
+
+    # Landsat filename - substring from 9 - 16 (e.g., LE70220492000037EDC00)
+    date_str = filename[9:16]
+    try:
+        date = dt.strptime(date_str, '%Y%j')
+    except:
+        logger.debug('File {f} could not be parsed for date as Landsat'.format(
+            f=filename))
+
+    if not date:
+        logger.warning('Could not parse date for {f}'.format(f=filename))
+
+    return date
+
 
 ### Validators
 def gdal_file_validator(f):
