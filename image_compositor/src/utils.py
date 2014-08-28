@@ -6,6 +6,7 @@ Utilities for Qt widgets
 """
 from __future__ import division, print_function
 
+import fnmatch
 import logging
 import os
 
@@ -15,12 +16,32 @@ from PyQt4 import QtGui
 logger = logging.getLogger()
 
 
+### Utilities
+def locate_files(location, pattern):
+    """ Recursively search location for files matching pattern
+
+    Args:
+      location (str): directory location to search
+      pattern (str): filename pattern for fnmatch.filter
+
+    Returns:
+      files (list): full filepaths for files found in location matching pattern
+
+    """
+    files = []
+
+    for root, dirnames, filenames in os.walk(os.path.abspath(location)):
+        for filename in fnmatch.filter(filenames, pattern):
+            files.append(os.path.join(root, filename))
+
+    return files
+
 ### Validators
 def gdal_file_validator(f):
     """ Validate a file is openable by GDAL as read-only
 
     Args:
-      f (string)                        filename to validate
+      f (str): filename to validate
 
     Raises:
       ImportError: raised if GDAL can't be imported
@@ -87,4 +108,3 @@ def find_file(edit_name, validator,
 
     edit_name.setText(f)
     return f
-
