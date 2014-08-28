@@ -46,7 +46,8 @@ logger = logging.getLogger(__name__)
 class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
     # Store
-    images_added = []
+    added_images = []
+    added_dates = []
 
     def __init__(self, iface):
 
@@ -73,6 +74,8 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         self.but_dirimport.setEnabled(False)
 
         # Image import - image by image
+        self.but_imageadd.clicked.connect(self.import_image)
+
         self.but_imagebrowse.clicked.connect(
             partial(find_file,
                     self.edit_imagename,
@@ -83,7 +86,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
                     self.but_imageadd, [self.edit_imagename]))
 
         # Image import - images matching pattern within directory
-        self.but_dirbrowse.clicked.connect(self.import_directory)
+        self.but_dirbrowse.clicked.connect(self.open_directory)
         self.but_dirimport.clicked.connect(self.import_directory_images)
 
         self.edit_dirname.textChanged.connect(
@@ -95,6 +98,18 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
                     self.but_dirimport,
                     [self.edit_dirname, self.edit_imagepattern]))
 
+        # Image table widget - 3 columns so we can have stretch on 0 and
+        #     interactive for 1
+        self.table_images.setHorizontalHeaderLabels(['Name', 'Date', ''])
+        self.table_images.horizontalHeader().setResizeMode(
+            0, QtGui.QHeaderView.Stretch)
+        self.table_images.horizontalHeader().setResizeMode(
+            1, QtGui.QHeaderView.Interactive)
+        self.table_images.hideColumn(2)
+
+        # Remove button
+        self.but_removeselected.clicked.connect(self.remove_images)
+
     def add_images(self, images):
         """ Adds images to table
 
@@ -105,26 +120,57 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         if isinstance(images, str):
             images = [images]
 
+        to_add_image = []
+        to_add_date = []
+
         for image in images:
             # Try to get date
             date = parse_date_from_filename(image)
-            if date is None:
-                date = 'None'
-            else:
-                date = date.strftime('%x')
 
             # Validate?
 
-            self.images_added.append((os.path.basename(image),
-                                      date))
+            # Make sure isn't already in table
+            if image not in self.added_images:
+                to_add_image.append(image)
+                to_add_date.append(date)
+            else:
+                logger.info('Already added {i}'.format(i=image))
 
-        self.update_table()
+        # Sort before adding
+        to_add_date, to_add_image = zip(*sorted(zip(to_add_date,
+                                                    to_add_image)))
+
+        self.added_images.extend(to_add_image)
+        self.added_dates.extend(to_add_date)
+
+        self.update_table(to_add_image, to_add_date)
 
 
-    def update_table(self):
-        """ Synchronizes self.images_added with the table """
-        print(self.images_added)
+    def update_table(self, images, dates):
+        """ Adds new images to table """
+        # Add new rows
+        self.table_images.setRowCount(len(self.added_images))
+        # Figure out where to start with new "images"
+        start = len(self.added_images) - len(images)
 
+        for row, image, date in zip(xrange(start, len(self.added_images)),
+                                      images, dates):
+            _image = QtGui.QTableWidgetItem(os.path.basename(image))
+            _image.setFlags(QtCore.Qt.ItemIsEnabled |
+                            QtCore.Qt.ItemIsSelectable)
+            _image.setTextAlignment(QtCore.Qt.AlignHCenter |
+                                    QtCore.Qt.AlignVCenter)
+
+            _date = QtGui.QTableWidgetItem('None' if date is None else
+                                           date.strftime('%x'))
+            _date.setFlags(QtCore.Qt.ItemIsEnabled |
+                           QtCore.Qt.ItemIsSelectable |
+                           QtCore.Qt.ItemIsEditable)
+            _date.setTextAlignment(QtCore.Qt.AlignHCenter |
+                                   QtCore.Qt.AlignVCenter)
+
+            self.table_images.setItem(row, 0, _image)
+            self.table_images.setItem(row, 1, _date)
 
 
 # Slots
@@ -145,7 +191,14 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         button.setEnabled(all(enable))
 
     @QtCore.pyqtSlot()
-    def import_directory(self):
+    def import_image(self):
+        """ Import a single image specified at a time """
+        filename = os.path.abspath(str(self.edit_imagename.text()))
+
+        self.add_images([filename])
+
+    @QtCore.pyqtSlot()
+    def open_directory(self):
         """ Opens a QFileDialog to find a directory """
         # Determine default location - os.getcwd if nothing already selected
         location = self.edit_dirname.text()
@@ -184,6 +237,22 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
                 images.remove(image)
 
         self.add_images(images)
+
+    @QtCore.pyqtSlot()
+    def remove_images(self):
+        """ Remove images highlighted in the table """
+        selected = self.table_images.selectedItems()
+        rows = set()
+        for item in selected:
+            rows.add(item.row())
+
+        self.table_images.selectionModel().clearSelection()
+
+        for row in sorted(rows, reverse=True):
+            logger.debug('Removing {f}'.format(f=self.added_images[row]))
+            del self.added_images[row]
+            del self.added_dates[row]
+            self.table_images.removeRow(row)
 
     def unload(self):
         """ Unloads resources """
