@@ -74,7 +74,6 @@ class Compositor(object):
         # TODO
         return
 
-
     @abc.abstractmethod
     def process_image(self, ncpu=1):
         """ Run compositing algorithm on entire image

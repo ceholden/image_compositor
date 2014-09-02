@@ -58,7 +58,7 @@ class ImageComposite:
             self.translator = QtCore.QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if QtCore.qVersion() > '4.3.3':
                 QtCore.QCoreApplication.installTranslator(self.translator)
 
         # Create dialog and keep reference
