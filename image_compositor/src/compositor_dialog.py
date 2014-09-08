@@ -35,6 +35,7 @@ from osgeo import gdal
 
 from ui_main_compositor import Ui_ImageCompositor as Ui_Dialog
 
+from compositors import algorithms
 from utils import (gdal_file_validator, find_file, locate_files,
                    parse_date_from_filename)
 
@@ -109,6 +110,9 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
         # Remove button
         self.but_removeselected.clicked.connect(self.remove_images)
+
+        # Composite combobox
+        self.cbox_algo.addItems([algo.description for algo in algorithms])
 
     def add_images(self, images):
         """ Adds images to table
