@@ -12,19 +12,21 @@ gdal.UseExceptions()
 logger = logging.getLogger(__name__)
 
 
-class ZZCompositor(Compositor):
-    """ Composite algorithm developed by Zhu Zhe """
+class NDVIComposite(Compositor):
+    """ Maximum NDVI composite """
 
-    _blue = 1
+    _red = 3
     _nir = 4
+    _ndv = -9999
 
-    input_info = ['_blue', '_nir']
-    input_info_str = ['Blue Band Number',
-                      'NIR Band Number']
-    description = 'Composite Algorithm by Zhu Zhe'
+    input_info = ['_red', '_nir', '_ndv']
+    input_info_str = ['Red Band Number',
+                      'NIR Band Number',
+                      'NoDataValue']
+    description = 'Maximum NDVI composite'
 
     def __repr__(self):
-        return "Composite algorithm by Zhu Zhe"
+        return "Maximum NDVI composite"
 
     def process_image(self, ncpu=1):
         """ Run compositing algorithm on entire image
