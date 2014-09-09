@@ -22,6 +22,7 @@
 """
 from __future__ import division, print_function
 
+import collections
 from datetime import datetime as dt
 import fnmatch
 from functools import partial
@@ -36,13 +37,15 @@ from osgeo import gdal
 from ui_main_compositor import Ui_ImageCompositor as Ui_Dialog
 
 from compositors import algorithms
+from custom_form import CustomForm
 from utils import (gdal_file_validator, find_file, locate_files,
                    parse_date_from_filename)
 
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
-                            level=logging.DEBUG,
-                            datefmt='%H:%M:%S')
+                    level=logging.DEBUG,
+                    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
+
 
 class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
@@ -111,8 +114,48 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         # Remove button
         self.but_removeselected.clicked.connect(self.remove_images)
 
-        # Composite combobox
-        self.cbox_algo.addItems([algo.description for algo in algorithms])
+        # Composite combobox and custom options
+        self.add_algorithms()
+
+        # Override QDialogButtonBox buttons
+        self.buttonBox.button(QtGui.QDialogButtonBox.Save).clicked.connect(
+            self.save_composite)
+        self.buttonBox.button(QtGui.QDialogButtonBox.Close).clicked.connect(
+            self.reject)
+        #self.buttonBox.accepted.disconnect()
+        #self.buttonBox.clicked.connect(self.save_composite)
+
+    def add_algorithms(self):
+        """ Adds algorithms to QComboBox and sets up custom options widgets """
+        for i, algo in enumerate(algorithms):
+            # Add to combobox
+            self.cbox_algo.addItem(algo.description)
+            # Setup custom widget
+            defaults = collections.OrderedDict()
+            for attribute, label in zip(algo.input_info, algo.input_info_str):
+                defaults[attribute] = (label, getattr(algo, attribute, None))
+
+            custom_form = CustomForm(defaults, title='Algorithm Options')
+
+            self.stackwidget_algo_details.insertWidget(i, custom_form)
+
+        # Set to default to index 0
+        self.cbox_algo.setCurrentIndex(0)
+        self.stackwidget_algo_details.setCurrentIndex(0)
+
+        # Connect signal
+        self.cbox_algo.currentIndexChanged.connect(self.algo_changed)
+
+    def set_algorithm_options(self):
+        """ Sets algorithm options from custom form widget """
+        index = self.cbox_algo.currentIndex()
+        algo = algorithms[index]
+        values = self.stackwidget_algo_details.widget(index).get()
+
+        for attr, value in zip(algo.input_info, values):
+            setattr(algo, attr, value)
+            print(getattr(algo, attr))
+
 
     def add_images(self, images):
         """ Adds images to table
@@ -149,7 +192,6 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
         self.update_table(to_add_image, to_add_date)
 
-
     def update_table(self, images, dates):
         """ Adds new images to table """
         # Add new rows
@@ -158,7 +200,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         start = len(self.added_images) - len(images)
 
         for row, image, date in zip(xrange(start, len(self.added_images)),
-                                      images, dates):
+                                    images, dates):
             _image = QtGui.QTableWidgetItem(os.path.basename(image))
             _image.setFlags(QtCore.Qt.ItemIsEnabled |
                             QtCore.Qt.ItemIsSelectable)
@@ -175,7 +217,6 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
             self.table_images.setItem(row, 0, _image)
             self.table_images.setItem(row, 1, _date)
-
 
 # Slots
     @QtCore.pyqtSlot(bool)
@@ -257,6 +298,21 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
             del self.added_images[row]
             del self.added_dates[row]
             self.table_images.removeRow(row)
+
+    @QtCore.pyqtSlot(int)
+    def algo_changed(self, index):
+        """ Slot for algorithm combobox changes """
+        # Update stack widget
+        self.stackwidget_algo_details.setCurrentIndex(index)
+
+    @QtCore.pyqtSlot(QtGui.QPushButton)
+    def save_composite(self):
+        """ Override for the Save button """
+        # Run the compositing code
+        self.set_algorithm_options()
+        print('NOW ACCEPTING')
+        self.accept()
+
 
     def unload(self):
         """ Unloads resources """
