@@ -32,6 +32,9 @@ class CustomForm(QtGui.QWidget):
     """
 
     def __init__(self, defaults, title=None, parent=None):
+        """ Initializes a custom form
+
+        """
         QtGui.QWidget.__init__(self, parent)
 
         # validate input data
@@ -49,7 +52,7 @@ class CustomForm(QtGui.QWidget):
         # list to store corresponding widgets
         self.widgets = []
         # store layout
-        self.form_layout = QFormLayout(self)
+        self.form_layout = QtGui.QFormLayout(self)
 
         self.init_form()
 
@@ -57,8 +60,8 @@ class CustomForm(QtGui.QWidget):
         """ Loop through input data initializing widgets """
 
         if self.title:
-            self.form_layout.addRow(QLabel('<b>' + self.title + '</b>'))
-            self.form_layout.addRow(QLabel(''))
+            self.form_layout.addRow(QtGui.QLabel('<b>' + self.title + '</b>'))
+            self.form_layout.addRow(QtGui.QLabel(''))
 
         for name, value in self.defaults.itervalues():
             # int
@@ -78,7 +81,8 @@ class CustomForm(QtGui.QWidget):
             # boolean
             elif isinstance(value, bool):
                 field = QtGui.QCheckBox(self)
-                field.setCheckState(QtChecked if value else Qt.Unchecked)
+                field.setCheckState(QtCore.Qt.Checked if value
+                                    else QtCore.Qt.Unchecked)
             # blank space
             elif name is None and value is None:
                 self.form_layout.addRow(QtGui.QLabel(''), QtGui.QLabel(''))
@@ -101,7 +105,8 @@ class CustomForm(QtGui.QWidget):
         self.form_layout.addRow(self.error_label)
 
     def get(self):
-        """ Loop through widgets returning current data from widgets as list """
+        """ Loop through widgets returning current data from widgets as list
+        """
         values = []
 
         for i, (name, default) in enumerate(self.defaults.itervalues()):
