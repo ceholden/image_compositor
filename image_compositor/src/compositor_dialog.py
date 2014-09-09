@@ -104,6 +104,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
         # Image table widget - 3 columns so we can have stretch on 0 and
         #     interactive for 1
+        self.table_images.setColumnCount(3)
         self.table_images.setHorizontalHeaderLabels(['Name', 'Date', ''])
         self.table_images.horizontalHeader().setResizeMode(
             0, QtGui.QHeaderView.Stretch)
@@ -155,7 +156,6 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         for attr, value in zip(algo.input_info, values):
             setattr(algo, attr, value)
             print(getattr(algo, attr))
-
 
     def add_images(self, images):
         """ Adds images to table
@@ -316,6 +316,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
     def unload(self):
         """ Unloads resources """
+        pass
 
 # main for testing
 if __name__ == '__main__':
