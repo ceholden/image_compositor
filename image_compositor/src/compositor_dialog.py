@@ -225,7 +225,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         self.stackwidget_importer.setCurrentIndex(
             0 if self.rbut_image.isChecked() else 1)
 
-    @QtCore.pyqtSlot(QtGui.QPushButton, list, QtCore.QString)
+    @QtCore.pyqtSlot(QtGui.QPushButton, list, str)
     def enable_import_buttons(self, button, edits, text):
         """ Enables button if the QLineEdits in [edits] have text """
         enable = [False] * len(edits)
