@@ -34,7 +34,7 @@ TRANSLATIONS =
 
 PLUGINNAME = image_compositor
 
-PY_FILES = src/*.py
+PY_FILES = src/*.py src/compositors
 
 EXTRAS = resources/ metadata.txt
 
@@ -62,7 +62,7 @@ compile: $(UI_FILES) $(RESOURCE_FILES)
 # $HOME/$(QGISDIR)/python/plugins
 deploy: compile doc transcompile
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vRf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vRf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
