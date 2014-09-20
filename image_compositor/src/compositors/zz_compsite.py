@@ -28,16 +28,6 @@ class ZZCompositor(Compositor):
     def __repr__(self):
         return "Composite algorithm by Zhu Zhe"
 
-    def process_image(self, ncpu=1):
-        """ Run compositing algorithm on entire image
-
-        Args:
-          ncpu (int, optional): number of CPUs to use - determines how to
-            process into chunks
-
-        """
-        return
-
     def process_chunk(self, xoff, yoff, xsize, ysize):
         """ Process a chunk of an image
 

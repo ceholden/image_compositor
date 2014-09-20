@@ -142,7 +142,6 @@ class Compositor(object):
 
         return valid
 
-    @abc.abstractmethod
     def process_image(self, ncpu=1):
         """ Run compositing algorithm on entire image
 
@@ -151,6 +150,7 @@ class Compositor(object):
             process into chunks
 
         """
+        logger.debug('Running algorithm')
         return
 
     @abc.abstractmethod
