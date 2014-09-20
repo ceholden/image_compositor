@@ -152,6 +152,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
         # Connect signal
         self.cbox_algo.currentIndexChanged.connect(self.algo_changed)
+        self.algo = algorithms[self.cbox_algo.currentIndex()]()
 
     def set_algorithm_options(self):
         """ Sets algorithm options from custom form widget """
@@ -223,6 +224,13 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
 
             self.table_images.setItem(row, 0, _image)
             self.table_images.setItem(row, 1, _date)
+
+        # Validate images
+        self.check_image_validity()
+
+    def check_image_validity(self):
+        """ Validates images in table for use with selected algorithm """
+        pass
 
 # Slots
     @QtCore.pyqtSlot(bool)
@@ -310,6 +318,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         """ Slot for algorithm combobox changes """
         # Update stack widget
         self.stackwidget_algo_details.setCurrentIndex(index)
+        self.algo = algorithms[self.cbox_algo.currentIndex()]()
 
     @QtCore.pyqtSlot()
     def run_composite(self):
@@ -317,8 +326,7 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         logger.debug('Running the algorithm')
         # Run the compositing code
         self.set_algorithm_options()
-        algo = algorithms[self.cbox_algo.currentIndex()]()
-        algo.process_image()
+        self.algo.process_image()
 
     @QtCore.pyqtSlot()
     def save_composite(self):
