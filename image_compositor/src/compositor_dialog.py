@@ -41,9 +41,10 @@ from custom_form import CustomForm
 from utils import (gdal_file_validator, find_file, locate_files,
                    parse_date_from_filename)
 
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
-                    level=logging.DEBUG,
-                    datefmt='%H:%M:%S')
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s: %(message)s',
+    level=logging.DEBUG,
+    datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -118,13 +119,15 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         # Composite combobox and custom options
         self.add_algorithms()
 
+        self.but_run.clicked.connect(self.run_composite)
+
+        self.but_save.clicked.connect(self.save_composite)
+
         # Override QDialogButtonBox buttons
-        self.buttonBox.button(QtGui.QDialogButtonBox.Save).clicked.connect(
-            self.save_composite)
-        self.buttonBox.button(QtGui.QDialogButtonBox.Close).clicked.connect(
-            self.reject)
-        #self.buttonBox.accepted.disconnect()
-        #self.buttonBox.clicked.connect(self.save_composite)
+        #self.buttonBox.button(QtGui.QDialogButtonBox.Save).clicked.connect(
+        #    self.save_composite)
+        # self.buttonBox.button(QtGui.QDialogButtonBox.Close).clicked.connect(
+        #    self.reject)
 
     def add_algorithms(self):
         """ Adds algorithms to QComboBox and sets up custom options widgets """
@@ -136,7 +139,10 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
             for attribute, label in zip(algo.input_info, algo.input_info_str):
                 defaults[attribute] = (label, getattr(algo, attribute, None))
 
-            custom_form = CustomForm(defaults, title='Algorithm Options')
+            # Add help button #TODO
+
+            # Add algorithm options
+            custom_form = CustomForm(defaults)  # , title='Algorithm Options')
 
             self.stackwidget_algo_details.insertWidget(i, custom_form)
 
@@ -305,14 +311,20 @@ class CompositorDialog(QtGui.QDialog, Ui_Dialog):
         # Update stack widget
         self.stackwidget_algo_details.setCurrentIndex(index)
 
-    @QtCore.pyqtSlot(QtGui.QPushButton)
-    def save_composite(self):
-        """ Override for the Save button """
+    @QtCore.pyqtSlot()
+    def run_composite(self):
+        """ Run the compositing algorithm """
+        logger.debug('Running the algorithm')
         # Run the compositing code
         self.set_algorithm_options()
-        print('NOW ACCEPTING')
-        self.accept()
+        algo = algorithms[self.cbox_algo.currentIndex()]()
+        algo.process_image()
 
+    @QtCore.pyqtSlot()
+    def save_composite(self):
+        """ Save the composite algorithm results """
+        logger.debug('Saving algorithm results to disk')
+        pass
 
     def unload(self):
         """ Unloads resources """
