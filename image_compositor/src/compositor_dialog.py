@@ -45,7 +45,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s: %(message)s',
     level=logging.DEBUG,
     datefmt='%H:%M:%S')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('image_compositor')
 
 
 class CompositorDialog(QtGui.QDialog, Ui_Dialog):

@@ -9,7 +9,7 @@ from osgeo import gdal
 gdal.AllRegister()
 gdal.UseExceptions()
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('image_compositor')
 
 
 class Compositor(object):

@@ -14,7 +14,7 @@ import os
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 
-logger = logging.getLogger()
+logger = logging.getLogger('image_compositor')
 
 
 ### Utilities

@@ -9,7 +9,7 @@ from composite_algorithm import Compositor
 gdal.AllRegister()
 gdal.UseExceptions()
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('image_compositor')
 
 
 class NDVIComposite(Compositor):
